@@ -7,14 +7,15 @@ import {FaSearch, FaTimes} from 'react-icons/fa'
 import {Input, BookListUL, Spinner} from './components/lib'
 import {BookRow} from './components/book-row'
 import {client} from 'utils/api-client'
+import {useAsync} from 'utils/hooks'
 import * as colors from 'styles/colors'
 
 function DiscoverBooksScreen() {
-  // 🐨 add state for status ('idle', 'loading', or 'success'), data, and query
-  const [status, setStatus] = React.useState('idle')
-  const [data, setData] = React.useState(null)
+  // 🐨 replaced with useAsync hook
+  // const [status, setStatus] = React.useState('idle')
+  // const [data, setData] = React.useState(null)
   const [query, setQuery] = React.useState('')
-  const [error, setError] = React.useState(null)
+  // const [error, setError] = React.useState(null)
   // 🐨 you'll also notice that we don't want to run the search until the
   // user has submitted the form, so you'll need a boolean for that as well
   // 💰 I called it "queried"
@@ -28,22 +29,27 @@ function DiscoverBooksScreen() {
   // they haven't then return early (💰 this is what the queried state is for).
 
   // const endpoint = `${process.env.REACT_APP_API_URL}/books?query=${encodeURIComponent(query)}`
+  const {data, error, run, isLoading, isError, isSuccess} = useAsync()
+
   React.useEffect(() => {
     if(!queried) return
-    setStatus('loading')
-    client(`books?query=${encodeURIComponent(query)}`).then(response => {
-      setData(response)
-      setStatus('success')
-    }, error => { // when promise is rejected
-      setStatus('error')
-      setError(error)
-    })
-  }, [query, queried])
+    // 🐨 replaced with useAsync hook
+    // setStatus('loading')
+    // client(`books?query=${encodeURIComponent(query)}`).then(response => {
+    //   setData(response)
+    //   setStatus('success')
+    // }, error => { // when promise is rejected
+    //   setStatus('error')
+    //   setError(error)
+    // })
+    run(client(`books?query=${encodeURIComponent(query)}`))
+  }, [query, queried, run])
 
-  // 🐨 replace these with derived state values based on the status.
-  const isLoading = status === 'loading'
-  const isSuccess = status === 'success'
-  const isError = status === 'error'
+
+  // 🐨 replaced with useAsync hook
+  // const isLoading = status === 'loading'
+  // const isSuccess = status === 'success'
+  // const isError = status === 'error'
 
   function handleSearchSubmit(event) {
     // 🐨 call preventDefault on the event so you don't get a full page reload

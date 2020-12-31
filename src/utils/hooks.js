@@ -4,11 +4,11 @@ function useSafeDispatch(dispatch) {
   const mounted = React.useRef(false)
   React.useLayoutEffect(() => {
     mounted.current = true
-    return () => (mounted.current = false)
+    return () => (mounted.current = false) // cleanup function
   }, [])
   return React.useCallback(
-    (...args) => (mounted.current ? dispatch(...args) : void 0),
-    [dispatch],
+    (...args) => (mounted.current ? dispatch(...args) : void 0), // TODO what is void 0?
+    [dispatch], //dispatch is the dispatch fn from a useReducer
   )
 }
 
