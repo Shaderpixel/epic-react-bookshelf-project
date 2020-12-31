@@ -14,7 +14,7 @@ function DiscoverBooksScreen() {
   const [status, setStatus] = React.useState('idle')
   const [data, setData] = React.useState(null)
   const [query, setQuery] = React.useState('')
-  const [error, setError] = React.useState('')
+  const [error, setError] = React.useState(null)
   // 🐨 you'll also notice that we don't want to run the search until the
   // user has submitted the form, so you'll need a boolean for that as well
   // 💰 I called it "queried"
@@ -32,10 +32,9 @@ function DiscoverBooksScreen() {
     if(!queried) return
     setStatus('loading')
     client(`books?query=${encodeURIComponent(query)}`).then(response => {
-      console.log(response)
       setData(response)
       setStatus('success')
-    }, error => {
+    }, error => { // when promise is rejected
       setStatus('error')
       setError(error)
     })
