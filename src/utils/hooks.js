@@ -24,7 +24,10 @@ function useAsync(initialState) {
     ...initialState,
   })
   const [{status, data, error}, setState] = React.useReducer(
-    (s, a) => ({...s, ...a}),
+    (s, a) => {
+      console.log('s', s)
+      console.log('a', a)
+      return {...s, ...a}},
     initialStateRef.current,
   )
 
