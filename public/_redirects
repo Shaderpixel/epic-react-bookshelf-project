@@ -1,1 +1,5 @@
+https://docs.netlify.com/routing/redirects/#rule-processing-order
+# redirects first then to single page routing
+/     /discover     302!
+# https://docs.netlify.com/routing/redirects/rewrites-proxies/#history-pushstate-and-single-page-apps
 /*    /index.html   200
