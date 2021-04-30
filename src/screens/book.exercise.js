@@ -6,50 +6,23 @@ import debounceFn from 'debounce-fn'
 import {FaRegCalendarAlt} from 'react-icons/fa'
 import Tooltip from '@reach/tooltip'
 import {useParams} from 'react-router-dom'
-// 🐨 you'll need these:
-import {useQuery, useMutation, queryCache} from 'react-query'
-import {useAsync} from 'utils/hooks'
-import {client} from 'utils/api-client'
+import {useBook} from 'utils/books.exercise'
+import {useListItem, useUpdateListItem} from 'utils/list-items.exercise'
 import {formatDate} from 'utils/misc'
 import * as mq from 'styles/media-queries'
 import * as colors from 'styles/colors'
-import {Textarea} from 'components/lib'
+import {Textarea, ErrorMessage, Spinner} from 'components/lib'
 import {Rating} from 'components/rating'
 import {StatusButtons} from 'components/status-buttons'
-import bookPlaceholderSvg from 'assets/book-placeholder.svg'
 
-const loadingBook = {
-  title: 'Loading...',
-  author: 'loading...',
-  coverImageUrl: bookPlaceholderSvg,
-  publisher: 'Loading Publishing',
-  synopsis: 'Loading...',
-  loadingBook: true,
-}
 
 function BookScreen({user}) {
   const {bookId} = useParams() // TODO what is this?
 
   // similar to const book = data?.book ?? loadingBook
-  const {data: book = loadingBook} = useQuery({
-    queryKey: ['book', {bookId}],
-    queryFn: () => client(`books/${bookId}`, {token: user.token}).then(data => data.book)
-  })
+  const book = useBook(bookId, user)
 
-
-  // 🐨 call useQuery to get the list item from the list-items endpoint
-  // queryKey should be 'list-items'
-  // queryFn should call the 'list-items' endpoint with the user's token
-  const {data: listItems = null} = useQuery({
-    queryKey: 'list-items',
-    queryFn: () =>
-      client('list-items', {token: user.token}).then(data => data.listItems),
-  })
-  const listItem = listItems?.find(li => li.bookId === bookId) ?? null
-  // 🦉 NOTE: the backend doesn't support getting a single list-item by it's ID
-  // and instead expects us to cache all the list items and look them up in our
-  // cache. This works out because we're using react-query for caching!
-
+  const listItem = useListItem(user, bookId) ?? null
 
   const {title, author, coverImageUrl, publisher, synopsis} = book
 
@@ -133,21 +106,8 @@ function ListItemTimeframe({listItem}) {
 }
 
 function NotesTextarea({listItem, user}) {
-  // 🐨 call useMutation here
-  // the mutate function should call the list-items/:listItemId endpoint with a PUT
-  //   and the updates as data. The mutate function will be called with the updates
-  //   you can pass as data.
-  // 💰 if you want to get the list-items cache updated after this query finishes
-  // the use the `onSettled` config option to queryCache.invalidateQueries('list-items')
-  // The useMutation will update the list-item:id's notes data, persisting it
-  const [mutate] = useMutation(updates => client(
-    `list-items/${updates.id}`, {
-      method: 'PUT',
-      token: user.token,
-      data: updates,
-    }), {
-      onSettled: () => queryCache.invalidateQueries('list-items')
-    })
+  const [mutate, {error, isError, isLoading}] = useUpdateListItem(user)
+
   // the debounce function waits 300ms after the user stops typing before calling the mutate function
   const debouncedMutate = React.useMemo(() => debounceFn(mutate, {wait: 300}), [
     mutate,
@@ -172,6 +132,14 @@ function NotesTextarea({listItem, user}) {
         >
           Notes
         </label>
+        {
+          isError ? <ErrorMessage
+              error={error}
+              variant="inline"
+              css = {{marginLeft: 6, fontSize: '0.7em'}}
+            /> : null
+        }
+        {isLoading ? <Spinner /> : null}
       </div>
       <Textarea
         id="notes"

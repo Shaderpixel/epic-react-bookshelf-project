@@ -1,8 +1,13 @@
 import * as React from 'react'
 import {Link} from 'components/lib'
 import {ListItemList} from 'components/list-item-list'
+import { refetchBookSearchQuery } from 'utils/books.exercise'
 
 function ReadingListScreen({user}) {
+  // React.useEffect(() => {
+  //   return () => refetchBookSearchQuery(user)
+  // }, [user])
+
   return (
     <ListItemList
       user={user}
