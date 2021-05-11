@@ -15,6 +15,7 @@ import {
   Dialog,
 } from './components/lib'
 // 🐨 import all the Modal compound components you created in ./components/modal
+import {Modal, ModalDismissButton, ModalOpenButton, ModalContents } from 'components/modal'
 import {Logo} from './components/logo'
 import {useAuth} from './context/auth-context'
 import {useAsync} from './utils/hooks'
@@ -102,6 +103,17 @@ function LoginFormModal({
   )
 }
 
+// doesn't have to be parameterized, so I don't need to make a component out of it. I am just creating a single element to be shared between two places
+const circleDismissButton = (<div css={{display: 'flex', justifyContent: 'flex-end'}}>
+    {/* 💰 here's what you should put in your <ModalDismissButton> */}
+    <ModalDismissButton>
+      <CircleButton>
+        <VisuallyHidden>Close</VisuallyHidden>
+        <span aria-hidden>×</span>
+      </CircleButton>
+    </ModalDismissButton>
+  </div>)
+
 function UnauthenticatedApp() {
   const {login, register} = useAuth()
   return (
@@ -130,20 +142,40 @@ function UnauthenticatedApp() {
              it did when you started, but the extra credits will help clean
              things up a bit.
         */}
-        <LoginFormModal
+        <Modal>
+          <ModalOpenButton>
+            <Button variant="primary" onClick={()=>console.log('opening the modal')}>Login</Button>
+          </ModalOpenButton>
+          <ModalContents aria-label="Login form" title="Login">
+            {/* {circleDismissButton}
+            <h3 css={{textAlign: 'center', fontSize: '2em'}}>Login</h3> */}
+            <LoginForm onSubmit={login} submitButton={<Button variant="primary">Login</Button>} />
+          </ModalContents>
+        </Modal>
+        {/* <LoginFormModal
           onSubmit={login}
           modalTitleText="Login"
           modalLabelText="Login form"
           submitButton={<Button variant="primary">Login</Button>}
           openButton={<Button variant="primary">Login</Button>}
-        />
-        <LoginFormModal
+        /> */}
+        <Modal>
+          <ModalOpenButton>
+            <Button variant="secondary">Register</Button>
+          </ModalOpenButton>
+          <ModalContents aria-label="Registration form" title="Register">
+            {/* {circleDismissButton}
+            <h3 css={{textAlign: 'center', fontSize: '2em'}}>Register</h3> */}
+            <LoginForm onSubmit={register} submitButton={<Button variant="secondary">Register</Button>} />
+          </ModalContents>
+        </Modal>
+        {/* <LoginFormModal
           onSubmit={register}
           modalTitleText="Register"
           modalLabelText="Registration form"
           submitButton={<Button variant="secondary">Register</Button>}
           openButton={<Button variant="secondary">Register</Button>}
-        />
+        /> */}
       </div>
     </div>
   )
